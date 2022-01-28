@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/lolBan/static/css/main.54a7e7bf.css",
-    "main.js": "/lolBan/static/js/main.c4b43550.js",
+    "main.js": "/lolBan/static/js/main.76293bfa.js",
     "static/js/787.ee4d86e2.chunk.js": "/lolBan/static/js/787.ee4d86e2.chunk.js",
     "static/media/DrafMode.mp3": "/lolBan/static/media/DrafMode.95189f649374ad736a7f.mp3",
     "index.html": "/lolBan/index.html",
     "main.54a7e7bf.css.map": "/lolBan/static/css/main.54a7e7bf.css.map",
-    "main.c4b43550.js.map": "/lolBan/static/js/main.c4b43550.js.map",
+    "main.76293bfa.js.map": "/lolBan/static/js/main.76293bfa.js.map",
     "787.ee4d86e2.chunk.js.map": "/lolBan/static/js/787.ee4d86e2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.54a7e7bf.css",
-    "static/js/main.c4b43550.js"
+    "static/js/main.76293bfa.js"
   ]
 }
