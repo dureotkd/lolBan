@@ -1,9 +1,12 @@
 import axios from "axios";
 import { connect } from "react-redux";
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import MainView from "../../view/Main/MainView";
+import { useEffect, useCallback, useState, useRef } from "react";
 
 function Main() {
+  console.log(window.location.href);
+
   const [blueName, setBlueName] = useState("");
   const [redName, setRedName] = useState("");
   const [matchName, setMatchName] = useState("");

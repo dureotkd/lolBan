@@ -1,6 +1,11 @@
 import "../../assets/default/default.css";
 
 export default function MainView(props) {
+  const baseUrl =
+    window.location.href.indexOf("localhost") !== -1
+      ? "localhost:3000/lolBan"
+      : "https://dureotkd.github.io/lolBan";
+
   if (props.setting) {
     return (
       <div className="create">
@@ -10,21 +15,21 @@ export default function MainView(props) {
           type="text"
           id="blue_team_name"
           readOnly
-          value={`localhost:3000/lolBan?draft=${props.draftSeq}&id=${props.blueEnName}`}
+          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.blueEnName}`}
         />
         <label htmlFor="red_team_name">Red Team Link</label>
         <input
           type="text"
           id="red_team_name"
           readOnly
-          value={`localhost:3000/lolBan?draft=${props.draftSeq}&id=${props.redEnName}`}
+          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.redEnName}`}
         />
         <label htmlFor="red_team_name">Watch Team Link</label>
         <input
           type="text"
           id="watch_team_name"
           readOnly
-          value={`localhost:3000/lolBan?draft=${props.draftSeq}&id=${props.watchEnName}`}
+          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.watchEnName}`}
         />
       </div>
     );
