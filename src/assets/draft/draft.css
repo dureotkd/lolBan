@@ -1,0 +1,43 @@
+body {
+  background: #15171b !important;
+}
+
+.Contents {
+  text-align: center;
+  max-width: 1024px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.watch {
+  margin-top: 15px;
+  text-align: left;
+  font-family: GmarketSans;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.bans .pick-image .active {
+  bottom: auto;
+  top: 0;
+}
+
+.pick-image .active {
+  height: 14px;
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  -webkit-animation: active-grow 1 0.35s ease-out;
+  animation: active-grow 1 0.35s ease-out;
+}
+.red-team-card > .active {
+  background: #be2038;
+}
+
+.blue-team-card > .active {
+  background: #0a4264;
+}
