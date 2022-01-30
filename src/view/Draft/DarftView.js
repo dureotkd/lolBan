@@ -179,11 +179,21 @@ export default function DraftView(props) {
               );
             })}
           </div>
-          <input
-            type="text"
-            placeholder="챔피언 검색"
-            onChange={debounce(props.handleSearchName, 200)}
-          />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              class="confirm"
+              disabled={props.selectDisabled ? true : false}
+              onClick={props.handleSelectPick.bind(this)}
+            >
+              선택
+            </button>
+            <input
+              type="text"
+              style={{ marginLeft: 10 }}
+              placeholder="챔피언 검색"
+              onChange={debounce(props.handleSearchName, 200)}
+            />
+          </div>
         </div>
         {props.champAll
           .filter((val) => {

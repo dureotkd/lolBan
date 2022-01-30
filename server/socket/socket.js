@@ -6,20 +6,20 @@ const io = require("socket.io")(http, {
 
 const rooms = {};
 const watch = {};
-const intervalControl = {
-  obj: null,
-  start: (seq, second, team) => {
-    if (this.obj !== undefined) {
-      clearInterval(this.obj);
-      io.to(seq).emit("stopSecond", second, team);
-    }
-    this.obj = setInterval(() => {
-      second--;
+// const intervalControl = {
+//   obj: null,
+//   start: (seq, second, team) => {
+//     if (this.obj !== undefined) {
+//       clearInterval(this.obj);
+//       io.to(seq).emit("stopSecond", second, team);
+//     }
+//     this.obj = setInterval(() => {
+//       second--;
 
-      io.to(seq).emit("startSecond", second, team);
-    }, 1000);
-  },
-};
+//       io.to(seq).emit("startSecond", second, team);
+//     }, 1000);
+//   },
+// };
 
 io.on("connection", (socket) => {
   console.log(`소켓 서버가 연결되었습니다 👨`);
@@ -28,6 +28,8 @@ io.on("connection", (socket) => {
 
   socket.on("joinDraft", (seq) => {
     socket.join(seq);
+
+    console.log(seq);
   });
 
   socket.on("watchDraftState", ({ seq, myTeam, watchId }) => {
@@ -96,63 +98,81 @@ io.on("connection", (socket) => {
     // await wait(10000);
   });
 
-  socket.on(
-    "handlePick",
-    ({ cloneCard, cloneActiveCard, cKey, engName, turn, seq }) => {
-      const turnTeam = turn % 2 === 0 ? "blue" : "red";
-      const turnReverseTeam = turnTeam === "blue" ? "red" : "blue";
-      const turnAction = turn < 10 ? "ban" : "pick";
-      const turnAdd = turn + 1;
-      const turnCard = cloneCard[turnTeam][turnAction];
+  socket.on("handlePick", ({ cloneCard, cKey, engName, turn, seq }) => {
+    const turnTeam = turn % 2 === 0 ? "blue" : "red";
+    const turnAction = turn < 10 ? "ban" : "pick";
+    const turnCard = cloneCard[turnTeam][turnAction];
 
-      for (const key in turnCard) {
-        if (!turnCard[key].code) {
-          const numberKey = Number(key);
+    for (const key in turnCard) {
+      if (!turnCard[key].lock) {
+        const numberKey = Number(key);
 
-          cloneCard[turnTeam][turnAction][numberKey] = {
-            tmpKey: cKey,
-            img: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${engName}_0.jpg`,
-            code: cKey,
-            name: engName,
-          };
+        cloneCard[turnTeam][turnAction][numberKey] = {
+          tmpKey: cKey,
+          img: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${engName}_0.jpg`,
+          lock: false,
+          code: cKey,
+          name: engName,
+        };
 
-          let nextActiveKey = turnAdd % 2 === 0 ? numberKey + 1 : numberKey;
+        break;
+      }
+    }
 
-          if (nextActiveKey > 4) {
-            nextActiveKey--;
-          }
+    io.to(socketId).emit("handleSelectBtn");
 
-          const isLastBan = turn === 9 ? true : false;
+    io.to(seq).emit("handlePick", {
+      cloneCard,
+    });
+  });
 
-          switch (isLastBan) {
-            case true:
-              cloneCard["blue"]["pick"][0].active = "active";
+  socket.on("handleSelectPick", ({ cloneCard, cloneActiveCard, turn, seq }) => {
+    const turnTeam = turn % 2 === 0 ? "blue" : "red";
+    const turnAction = turn < 10 ? "ban" : "pick";
+    const turnReverseTeam = turnTeam === "blue" ? "red" : "blue";
+    const turnAdd = turn + 1;
+    const turnCard = cloneCard[turnTeam][turnAction];
+    let lastKey = Number.MIN_SAFE_INTEGER;
 
-              break;
-
-            default:
-              cloneCard[turnReverseTeam][turnAction][nextActiveKey].active =
-                "active";
-
-              break;
-          }
-
-          break;
+    for (const key in turnCard) {
+      if (turnCard[key].img) {
+        const numberKey = Number(key);
+        if (numberKey > lastKey) {
+          lastKey = numberKey;
         }
       }
-
-      cloneActiveCard.push(engName);
-
-      io.to(seq).emit("handlePick", {
-        cloneCard,
-        turnAdd,
-        engName,
-        turnTeam,
-        turnAction,
-        cloneActiveCard,
-      });
     }
-  );
+
+    const engName = cloneCard[turnTeam][turnAction][lastKey]["name"];
+    cloneCard[turnTeam][turnAction][lastKey]["lock"] = true;
+    cloneActiveCard.push(engName);
+
+    let nextActiveKey = turnAdd % 2 === 0 ? lastKey + 1 : lastKey;
+
+    if (nextActiveKey > 4) {
+      nextActiveKey--;
+    }
+
+    const isLastBan = turn === 9 ? true : false;
+
+    switch (isLastBan) {
+      case true:
+        cloneCard["blue"]["pick"][0].active = "active";
+
+        break;
+
+      default:
+        cloneCard[turnReverseTeam][turnAction][nextActiveKey].active = "active";
+
+        break;
+    }
+
+    io.to(seq).emit("handleSelectPick", {
+      cloneCard,
+      turnAdd,
+      cloneActiveCard,
+    });
+  });
 
   socket.on("disconnect", () => {
     delete rooms[socketId];

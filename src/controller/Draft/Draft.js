@@ -9,9 +9,6 @@ function Draft(props) {
   const { search } = useLocation();
   const seq = search.split("&")[0].split("=")[1];
   const id = search.split("&")[1].split("=")[1];
-  // const navigate = useNavigate();
-  // const [seq , setSeq] = useState(pathname.split('/')[]);
-  // const [id, setId] = useState();
   const [draft, setDraft] = useState({});
   const [champAll, setChampAll] = useState([]);
   const [searchLine, setSearchLine] = useState("");
@@ -19,6 +16,7 @@ function Draft(props) {
   const [activeCard, setActiveCard] = useState([]);
   const [socketObj, setSocketObj] = useState(null);
   const [startGame, setStartGame] = useState(false);
+  const [selectDisabled, setSelectDisabled] = useState(true);
   const [turn, setTurn] = useState(0);
   const [second, setSecond] = useState({
     blue: 60,
@@ -168,8 +166,6 @@ function Draft(props) {
      */
     socket.on("fullDraft", (watchId) => {
       alert("방이 꽉찼습니다 \n 관전자 모드로 변경합니다");
-
-      window.close();
     });
 
     /**
@@ -180,25 +176,36 @@ function Draft(props) {
     });
 
     /**
+     * 챔피언 셀렉트 버튼을 제어합니다
+     */
+    socket.on("handleSelectBtn", () => {
+      setSelectDisabled(false);
+    });
+
+    /**
      * 밴픽 소켓통신을 제어합니다
      */
-    socket.on(
-      "handlePick",
-      ({
-        cloneCard,
-        turnAdd,
-        engName,
-        cloneActiveCard,
-        turnTeam,
-        turnAction,
-      }) => {
-        if (turnAdd > 20) return;
+    socket.on("handlePick", ({ cloneCard }) => {
+      setCard(cloneCard);
+    });
 
-        setTurn(turnAdd);
-        setActiveCard(cloneActiveCard);
-        setCard(cloneCard);
+    /**
+     * 밴픽 챔피언 셀렉트 (LOCK)을 제어합니다
+     */
+    socket.on("handleSelectPick", ({ cloneCard, turnAdd, cloneActiveCard }) => {
+      if (turnAdd === 20) {
+        endDraft();
       }
-    );
+
+      setActiveCard(cloneActiveCard);
+      setCard(cloneCard);
+      setTurn(turnAdd);
+      setSelectDisabled(true);
+    });
+  };
+
+  const endDraft = () => {
+    alert("게임이 종료되었습니다");
   };
 
   /**
@@ -237,14 +244,28 @@ function Draft(props) {
     }
 
     const cloneCard = { ...card };
-    const cloneActiveCard = [...activeCard];
 
     socketObj.emit("handlePick", {
       cloneCard,
-      cloneActiveCard,
       cKey,
       engName,
       activeCard,
+      isNormal,
+      turn,
+      seq,
+    });
+  };
+
+  /**
+   *
+   */
+  const handleSelectPick = () => {
+    const cloneCard = { ...card };
+    const cloneActiveCard = [...activeCard];
+
+    socketObj.emit("handleSelectPick", {
+      cloneCard,
+      cloneActiveCard,
       turn,
       seq,
     });
@@ -285,8 +306,10 @@ function Draft(props) {
       activeCard={activeCard}
       handleSearchLine={handleSearchLine}
       handleSearchName={handleSearchName}
+      handleSelectPick={handleSelectPick}
       handlePick={handlePick}
       startGame={startGame}
+      selectDisabled={selectDisabled}
     />
   );
 }

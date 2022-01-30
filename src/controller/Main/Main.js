@@ -5,8 +5,6 @@ import MainView from "../../view/Main/MainView";
 import { useEffect, useCallback, useState, useRef } from "react";
 
 function Main() {
-  console.log(window.location.href);
-
   const [blueName, setBlueName] = useState("");
   const [redName, setRedName] = useState("");
   const [matchName, setMatchName] = useState("");

@@ -52,20 +52,14 @@ html {
 .confirm {
   background: #fff;
   color: #000;
-  text-transform: uppercase;
   border: 0;
   outline: 0;
   text-align: center;
   line-height: 30px;
-  font-family: Merriweather Sans, sans-serif;
   font-weight: 800;
   font-size: 21px;
   margin: 0;
   padding: 0 20px;
-  display: inline-block;
-  position: absolute;
-  right: 0;
-  top: 20px;
   cursor: pointer;
 }
 
@@ -278,7 +272,7 @@ main {
   padding-left: 12px;
 }
 
-.search-box > input {
+.search-box input {
   outline: none;
   border: none;
   background: black;

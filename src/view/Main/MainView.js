@@ -6,6 +6,8 @@ export default function MainView(props) {
       ? "localhost:3000/lolBan"
       : "https://dureotkd.github.io/lolBan";
 
+  console.log(baseUrl);
+
   if (props.setting) {
     return (
       <div className="create">
