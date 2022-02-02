@@ -11,8 +11,6 @@ function App() {
   const [loginUser, setLoginUser] = useState({ name: "kevin", age: 28 });
   const { search } = useLocation();
 
-  console.log(search.startsWith("?draft="));
-
   const loginUserReducer = (state = loginUser, action) => {
     const param = action.payload;
 
