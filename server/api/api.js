@@ -4,7 +4,7 @@ const gameModel = require("../model/Game/GameModel");
 const champModel = require("../model/Champ/ChampModel");
 
 router.get("/", (req, res) => {
-  res.send("Hello RESTFUa API ");
+  res.send("Hello RESTFUL API ");
 });
 
 router.get("/games", async (req, res) => {
@@ -50,10 +50,9 @@ router.patch("/games", async (req, res) => {
   const blueEnKey = `${blueName}_${matchName}`;
   const redEnKey = `${redName}_${matchName}`;
   const watchEnKey = `watch_${matchName}`;
-  const { seq } = await gameModel.getLastPk();
+  const lastRow = await gameModel.getLastPk();
 
-  if (!seq) res.status(500).send();
-
+  const seq = lastRow === undefined ? 0 : lastRow.seq;
   const newSeq = seq + 1;
 
   const blueEnName = crypto

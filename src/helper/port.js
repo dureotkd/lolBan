@@ -1,6 +1,6 @@
 const baseServerUrl =
   window.location.host.indexOf("localhost") !== -1
-    ? "http://localhost:80"
+    ? "http://localhost:8080"
     : "http://13.209.99.30:8080";
 
 const baseUrl =
