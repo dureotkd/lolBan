@@ -7,6 +7,10 @@ import "./assets/default/default.css";
 import Main from "./controller/Main/Main";
 import Draft from "./controller/Draft/Draft";
 
+function Test() {
+  return <div>테스트 환경입니다</div>;
+}
+
 function App() {
   const [loginUser, setLoginUser] = useState({ name: "kevin", age: 28 });
   const { search } = useLocation();
@@ -35,6 +39,7 @@ function App() {
     <Provider store={store}>
       <Routes>
         <Route exact path="/" element={<Main />} />
+        <Route exact path="/test" element={<Test />} />
         <Route exact path="/draft/:seq/:id" element={<Draft />} />
       </Routes>
     </Provider>
