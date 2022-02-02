@@ -1,5 +1,6 @@
 import axios from "axios";
 import { connect } from "react-redux";
+import { baseServerUrl } from "../../helper/port";
 import { useLocation } from "react-router-dom";
 import MainView from "../../view/Main/MainView";
 import { useEffect, useCallback, useState, useRef } from "react";
@@ -66,7 +67,7 @@ function Main() {
 
     await axios({
       method: "patch",
-      url: "http://localhost:8080/api/games",
+      url: `${baseServerUrl}/api/games`,
       params: {
         blueName,
         redName,

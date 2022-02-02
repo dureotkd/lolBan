@@ -1,5 +1,6 @@
 import axios from "axios";
 import io from "socket.io-client";
+import { baseServerUrl } from "../../helper/port";
 import { connect } from "react-redux";
 import DraftView from "../../view/Draft/DarftView";
 import { useEffect, useCallback, useState } from "react";
@@ -7,8 +8,9 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 function Draft(props) {
   const { search } = useLocation();
-  const seq = search.split("&")[0].split("=")[1];
-  const id = search.split("&")[1].split("=")[1];
+  // const seq = search.split("&")[0].split("=")[1];
+  // const id = search.split("&")[1].split("=")[1];
+  const { seq, id } = useParams();
   const [draft, setDraft] = useState({});
   const [champAll, setChampAll] = useState([]);
   const [searchLine, setSearchLine] = useState("");
@@ -77,7 +79,7 @@ function Draft(props) {
 
     await axios({
       method: "get",
-      url: "http://localhost:8080/api/games",
+      url: `${baseServerUrl}/api/games`,
       params: {
         seq,
         id,
@@ -97,7 +99,7 @@ function Draft(props) {
 
     await axios({
       method: "get",
-      url: "http://localhost:8080/api/champs",
+      url: `${baseServerUrl}/api/champs`,
       params: {},
     })
       .then(({ status, data }) => {
@@ -112,7 +114,7 @@ function Draft(props) {
   }, [seq, id]);
 
   const setSocket = (draftData) => {
-    const socket = io("http://localhost:8080");
+    const socket = io(`${baseServerUrl}`);
     setSocketObj(socket);
 
     const myTeam = draftData.myTeam;

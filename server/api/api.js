@@ -4,7 +4,7 @@ const gameModel = require("../model/Game/GameModel");
 const champModel = require("../model/Champ/ChampModel");
 
 router.get("/", (req, res) => {
-  res.send("Hello RESTFUL API ");
+  res.send("Hello RESTFUa API ");
 });
 
 router.get("/games", async (req, res) => {

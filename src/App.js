@@ -34,12 +34,8 @@ function App() {
   return (
     <Provider store={store}>
       <Routes>
-        {search.startsWith("?draft=") ? (
-          <Route exact path="/" element={<Draft />} />
-        ) : (
-          <Route exact path="/" element={<Main />} />
-        )}
-        {/* // <Route exact path="/draft/:seq/:id" element={<Draft />} /> */}
+        <Route exact path="/" element={<Main />} />
+        <Route exact path="/draft/:seq/:id" element={<Draft />} />
       </Routes>
     </Provider>
   );

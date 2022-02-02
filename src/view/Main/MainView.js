@@ -1,13 +1,7 @@
 import "../../assets/default/default.css";
+import { baseUrl } from "../../helper/port";
 
 export default function MainView(props) {
-  const baseUrl =
-    window.location.href.indexOf("localhost") !== -1
-      ? "localhost:3000/lolBan"
-      : "https://dureotkd.github.io/lolBan";
-
-  console.log(baseUrl);
-
   if (props.setting) {
     return (
       <div className="create">
@@ -17,21 +11,21 @@ export default function MainView(props) {
           type="text"
           id="blue_team_name"
           readOnly
-          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.blueEnName}`}
+          value={`${baseUrl}/draft/${props.draftSeq}/${props.blueEnName}`}
         />
         <label htmlFor="red_team_name">Red Team Link</label>
         <input
           type="text"
           id="red_team_name"
           readOnly
-          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.redEnName}`}
+          value={`${baseUrl}/draft/${props.draftSeq}/${props.redEnName}`}
         />
         <label htmlFor="red_team_name">Watch Team Link</label>
         <input
           type="text"
           id="watch_team_name"
           readOnly
-          value={`${baseUrl}?draft=${props.draftSeq}&id=${props.watchEnName}`}
+          value={`${baseUrl}/draft/${props.draftSeq}/${props.watchEnName}`}
         />
       </div>
     );
