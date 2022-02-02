@@ -1,6 +1,6 @@
 import { Provider } from "react-redux";
 import { combineReducers, createStore } from "redux";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router";
 import "./assets/default/default.css";
 
@@ -8,7 +8,7 @@ import Main from "./controller/Main/Main";
 import Draft from "./controller/Draft/Draft";
 
 function App() {
-  const [loginUser, setLoginUser] = useState({ name: "성민", age: 28 });
+  const [loginUser, setLoginUser] = useState({ name: "kevin", age: 28 });
   const { search } = useLocation();
 
   console.log(search.startsWith("?draft="));
