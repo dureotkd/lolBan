@@ -14,6 +14,11 @@ class ChampModel extends Core {
 
   getRow() {}
 
+  getRowByPk(seq) {
+
+
+  }
+
   getAll() {
     const sql = "SELECT * FROM ban.`champ`";
 

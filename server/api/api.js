@@ -1,5 +1,6 @@
 const { router } = require("../http/http");
 const crypto = require("crypto");
+const moment = require("moment");
 const gameModel = require("../model/Game/GameModel");
 const champModel = require("../model/Champ/ChampModel");
 
@@ -54,6 +55,7 @@ router.patch("/games", async (req, res) => {
 
   const seq = lastRow === undefined ? 0 : lastRow.seq;
   const newSeq = seq + 1;
+  const regDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const blueEnName = crypto
     .createHash("sha512")
@@ -88,6 +90,7 @@ router.patch("/games", async (req, res) => {
     blueEnName,
     redEnName,
     watchEnName,
+    regDate,
   });
 
   res.send({

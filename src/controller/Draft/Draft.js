@@ -154,7 +154,11 @@ function Draft(props) {
     /**
      * 블루,레드팀 참여자 확인
      */
-    socket.on("joinDraft", () => {});
+    socket.on("joinDraft", ({ dbCard, dbActiveCard, dbTurn }) => {
+      setTurn(dbTurn);
+      setActiveCard(dbActiveCard);
+      setCard(dbCard);
+    });
 
     /**
      * 대전을 시작합니다

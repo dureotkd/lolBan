@@ -21,6 +21,22 @@ class Core {
   }
 
   /**
+   * * MAKE MYSQL UPDATE 쿼리문
+   */
+  getUpdateQuery({ table, data, where }) {
+    let c = "";
+
+    for (const [column, value] of Object.entries(data)) {
+      c += `${column}='${value}',`;
+    }
+
+    const rc = c.slice(0, -1);
+    const rw = where.join(" AND ");
+
+    return `UPDATE ${table} SET ${rc} WHERE ${rw}`;
+  }
+
+  /**
    * * MAKE MYSQL DELETE 쿼리문
    */
   getDeleteQuery() {
