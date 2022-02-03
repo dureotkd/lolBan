@@ -1,9 +1,10 @@
 import axios from "axios";
 import { connect } from "react-redux";
-import { baseServerUrl } from "../../helper/port";
-import { useLocation } from "react-router-dom";
 import MainView from "../../view/Main/MainView";
+import { baseServerUrl } from "../../helper/port";
 import { useEffect, useCallback, useState, useRef } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 function Main() {
   const [blueName, setBlueName] = useState("");
@@ -15,7 +16,7 @@ function Main() {
   const [redEnName, setRedEnName] = useState("");
   const [watchEnName, setWatchEnName] = useState("");
   const [draftSeq, setDraftSeq] = useState("");
-  const firstInputRef = useRef();
+  const teamInputRef = useRef([]);
 
   const changeInput = useCallback(() => {
     const blueLen = blueName.length;
@@ -54,9 +55,7 @@ function Main() {
     }
   }, [blueName, redName, matchName]);
 
-  useEffect(() => {
-    firstInputRef.current.focus();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     changeInput();
@@ -91,20 +90,35 @@ function Main() {
       });
   };
 
+  const handleCopy = (type) => {
+    const el = teamInputRef.current[type];
+    el.select();
+    document.execCommand("copy");
+    toast.success("복사가 완료되었습니다", {
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: 500,
+      hideProgressBar: true,
+    });
+  };
+
   return (
-    <MainView
-      setBlueName={setBlueName}
-      setRedName={setRedName}
-      setMatchName={setMatchName}
-      submitDisabled={submitDisabled}
-      handleFormSubmit={handleFormSubmit}
-      firstInputRef={firstInputRef}
-      setting={setting}
-      blueEnName={blueEnName}
-      redEnName={redEnName}
-      watchEnName={watchEnName}
-      draftSeq={draftSeq}
-    />
+    <>
+      <MainView
+        setBlueName={setBlueName}
+        setRedName={setRedName}
+        setMatchName={setMatchName}
+        submitDisabled={submitDisabled}
+        handleFormSubmit={handleFormSubmit}
+        setting={setting}
+        blueEnName={blueEnName}
+        redEnName={redEnName}
+        watchEnName={watchEnName}
+        draftSeq={draftSeq}
+        teamInputRef={teamInputRef}
+        handleCopy={handleCopy}
+      />
+      <ToastContainer />
+    </>
   );
 }
 

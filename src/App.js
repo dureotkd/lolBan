@@ -4,11 +4,10 @@ import "./assets/default/default.css";
 import Main from "./controller/Main/Main";
 import Draft from "./controller/Draft/Draft";
 import { combineReducers, createStore } from "redux";
-import { Routes, Route, useLocation } from "react-router";
+import { Routes, Route } from "react-router";
 
 function App() {
   const [loginUser, setLoginUser] = useState({ name: "kevin", age: 28 });
-  const { search } = useLocation();
 
   const loginUserReducer = (state = loginUser, action) => {
     const param = action.payload;

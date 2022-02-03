@@ -39,6 +39,8 @@ const getImageConvertParam = (src) => {
 알림창을 생성합니다
 */
 // const createNotification = ({ type, msg, time }) => {
+//   alert(type);
+
 //   switch (type) {
 //     default:
 //       break;

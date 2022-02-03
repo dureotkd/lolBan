@@ -9,7 +9,7 @@ html {
 
 .create {
   max-width: 800px;
-  width: 100%;
+  width: 80%;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -26,7 +26,6 @@ html {
 .create label {
   text-transform: uppercase;
   display: block;
-  font-size: 21px;
   margin: 10px 0;
 }
 
@@ -433,4 +432,15 @@ main {
   border-radius: 3px;
   color: white;
   cursor: pointer;
+}
+
+.link_box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 170px;
+}
+
+.copy_icon {
+  margin-left: 10px;
 }
