@@ -4,7 +4,7 @@ const mysql = require("mysql");
 const db = mysql.createPoolCluster();
 
 db.add("ban", {
-  host: "",
+  host: "52.79.106.68",
   user: "root",
   password: "",
   database: "ban",
