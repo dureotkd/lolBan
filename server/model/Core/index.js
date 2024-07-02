@@ -67,7 +67,6 @@ class Core {
                 if (data) resolve(data[0]);
                 else reject(new Error("empty"));
 
-                // resolve(data[0] || {});
                 break;
 
               case "exec":
@@ -80,10 +79,10 @@ class Core {
 
                 break;
             }
-
-            // When done with the connection, release it.
-            connection.release();
           });
+
+          // When done with the connection, release it.
+          connection.release();
         }
       });
     });

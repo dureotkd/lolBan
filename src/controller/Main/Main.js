@@ -1,10 +1,12 @@
+import React from "react";
+
 import axios from "axios";
-import { connect } from "react-redux";
 import MainView from "../../view/Main/MainView";
-import { baseServerUrl } from "../../helper/port";
+import { baseServerUrl, baseUrl } from "../../helper/port";
 import { useEffect, useCallback, useState, useRef } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
+import { FcOpenedFolder } from "react-icons/fc";
 
 function Main() {
   const [blueName, setBlueName] = useState("");
@@ -101,31 +103,78 @@ function Main() {
     });
   };
 
+  var x = 1;
+  var y = 6;
+  while (y--) {
+    x++;
+  }
+
+  console.log(x, y);
+
   return (
     <>
-      <MainView
-        setBlueName={setBlueName}
-        setRedName={setRedName}
-        setMatchName={setMatchName}
-        submitDisabled={submitDisabled}
-        handleFormSubmit={handleFormSubmit}
-        setting={setting}
-        blueEnName={blueEnName}
-        redEnName={redEnName}
-        watchEnName={watchEnName}
-        draftSeq={draftSeq}
-        teamInputRef={teamInputRef}
-        handleCopy={handleCopy}
-      />
+      {setting ? <MatchLink /> : <MatchNicknameForm />}
       <ToastContainer />
     </>
   );
 }
 
-function StateToProps(state) {
-  return {
-    loginUser: state.loginUser,
-  };
-}
+const MatchLink = React.memo((props) => {
+  return (
+    <div className="create">
+      <img src={process.env.PUBLIC_URL + `/mainIcon.svg`} alt="로고" />
+      <div className="link_box">
+        <label htmlFor="blue_team_name">Blue Team Link</label>
+        <FcOpenedFolder className="copy_icon" />
+      </div>
+      <input
+        type="text"
+        id="blue_team_name"
+        readOnly
+        value={`${baseUrl}/draft/${props.draftSeq}/${props.blueEnName}`}
+      />
+      <div className="link_box">
+        <label htmlFor="red_team_name">Red Team Link</label>
+        <FcOpenedFolder className="copy_icon" />
+      </div>
+      <input
+        type="text"
+        id="red_team_name"
+        readOnly
+        value={`${baseUrl}/draft/${props.draftSeq}/${props.redEnName}`}
+      />
+      <div className="link_box">
+        <label htmlFor="red_team_name">Watch Team Link</label>
+        <FcOpenedFolder className="copy_icon" />
+      </div>
+      <input
+        type="text"
+        id="watch_team_name"
+        readOnly
+        ref={(elem) => (props.teamInputRef.current["watch"] = elem)}
+        value={`${baseUrl}/draft/${props.draftSeq}/${props.watchEnName}`}
+      />
+    </div>
+  );
+});
 
-export default connect(StateToProps)(Main);
+const MatchNicknameForm = React.memo(() => {
+  return (
+    <form className="create">
+      <img src={process.env.PUBLIC_URL + `/mainIcon.svg`} alt="로고" />
+      <div>
+        <label htmlFor="blue_team_name">Blue team name</label>
+        <input type="text" id="blue_team_name" maxLength="30" />
+        <label htmlFor="red_team_name">Red team name</label>
+        <input type="text" id="red_team_name" maxLength="30" />
+        <label htmlFor="match_name">Match name</label>
+        <input type="text" id="match_name" maxLength="30" />
+      </div>
+      <button type="submit" className="confirm">
+        Confirm
+      </button>
+    </form>
+  );
+});
+
+export default Main;

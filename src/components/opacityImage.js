@@ -18,7 +18,7 @@ export default function OpacityImage(props) {
           src={props.src}
           style={{
             opacity: 0,
-            transition: "all.2s",
+            transition: "opacity 0.2s ease-in-out",
             top: 0,
             left: 0,
           }}
@@ -26,7 +26,7 @@ export default function OpacityImage(props) {
       );
 
     case "hide":
-      return <div ref={ref} style={{ opacity: 0, transition: "all.3s" }}></div>;
+      return <div></div>;
 
     default:
       break;

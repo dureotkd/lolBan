@@ -269,6 +269,7 @@ main {
   justify-content: space-between;
   margin-bottom: 25px;
   padding-left: 12px;
+  width: 100%;
 }
 
 .search-box input {
@@ -401,6 +402,8 @@ main {
 
 .pick-card-wrap {
   display: flex;
+  margin: 0px auto;
+  width: 1380px;
 }
 
 .pick-card-wrap > div:first-child {
@@ -443,4 +446,28 @@ main {
 
 .copy_icon {
   margin-left: 10px;
+}
+
+.flex {
+  display: flex;
+}
+
+.al-c {
+  align-items: center;
+}
+
+.js-c {
+  justify-content: center;
+}
+
+.f-23 {
+  font-size: 23px;
+}
+
+.ml-12 {
+  margin-left: 12px;
+}
+
+.mr-12 {
+  margin-right: 12px;
 }
