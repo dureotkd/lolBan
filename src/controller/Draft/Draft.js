@@ -7,25 +7,26 @@ import "../../assets/draft/draft.css";
 import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import {
+  MatchDisplay,
+  PickCard,
+  BanCard,
+  ChampionList,
+} from "../../components/Draft";
+
 function Draft(props) {
   const { seq, id } = useParams();
   const { search } = useLocation();
   // const seq = search.split("&")[0].split("=")[1];
   // const id = search.split("&")[1].split("=")[1];
   const [loading, setLoading] = useState(true);
+
   const [draft, setDraft] = useState({});
   const [champAll, setChampAll] = useState([]);
-  const [searchLine, setSearchLine] = useState("");
-  const [searchName, setSearchName] = useState("");
-  const [activeCard, setActiveCard] = useState([]);
-  const [socketObj, setSocketObj] = useState(null);
   const [startGame, setStartGame] = useState(false);
-  const [selectDisabled, setSelectDisabled] = useState(true);
   const [turn, setTurn] = useState(0);
-  const [second, setSecond] = useState({
-    blue: 60,
-    red: 60,
-  });
+
+  const [activeCard, setActiveCard] = useState([]);
   const [card, setCard] = useState({
     blue: {
       pick: {},
@@ -37,16 +38,30 @@ function Draft(props) {
     },
   });
 
+  const [searchLine, setSearchLine] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [selectDisabled, setSelectDisabled] = useState(true);
+
+  const [socketObj, setSocketObj] = useState(null);
+
+  const [audioObj, setAudioObj] = useState({
+    effect: null,
+    sound: null,
+  });
+
+  const audioRef = React.useRef("");
+
   React.useEffect(() => {
     (async () => {
       try {
         defaultCardSetUp();
 
-        await fetchGameData();
+        const champData = await fetchChampData();
+        const gameData = await fetchGameData();
 
-        await fetchChampData();
+        await preloadImages(champData);
 
-        connectSocket();
+        connectSocket(gameData);
       } catch (err) {
         console.error("Initialization failed", err);
       } finally {
@@ -107,6 +122,8 @@ function Draft(props) {
       },
     });
     setDraft(row);
+
+    return row;
   }, [id, seq]);
 
   const fetchChampData = useCallback(async () => {
@@ -117,58 +134,104 @@ function Draft(props) {
     });
 
     setChampAll(all);
+
+    return all;
   }, []);
 
-  const connectSocket = React.useCallback(() => {
-    const socket = io(`${baseServerUrl}`);
-    setSocketObj(socket);
+  const preloadImages = React.useCallback(async (images) => {
+    const promises = images.map(({ engName }) => {
+      return new Promise((resolve, reject) => {
+        const splashImg = new Image();
+        const iconImg = new Image();
 
-    socket.emit("joinDraft", seq);
+        splashImg.src = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${engName}_0.jpg`;
+        splashImg.onload = resolve;
+        splashImg.onerror = reject;
 
-    /**
-     * 블루,레드팀 참여자 확인
-     */
-    socket.on("joinDraft", ({ dbCard, dbActiveCard, dbTurn }) => {
-      setTurn(dbTurn);
-      setActiveCard(dbActiveCard);
-      setCard(dbCard);
+        iconImg.src = `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`;
+        iconImg.onload = resolve;
+        iconImg.onerror = reject;
+      });
     });
 
-    /**
-     * 대전을 시작합니다
-     */
-    socket.on("startDraft", () => {
-      setStartGame(true);
-    });
+    return Promise.all(promises);
+  }, []);
 
-    /**
-     * 챔피언 셀렉트 버튼을 제어합니다
-     */
-    socket.on("handleSelectBtn", () => {
-      setSelectDisabled(false);
-    });
+  const connectSocket = React.useCallback(
+    (draft) => {
+      const socket = io(`${baseServerUrl}`);
+      setSocketObj(socket);
 
-    /**
-     * 밴픽 소켓통신을 제어합니다
-     */
-    socket.on("handlePick", ({ cloneCard }) => {
-      setCard(cloneCard);
-    });
+      const myTeam = draft.myTeam;
 
-    /**
-     * 밴픽 챔피언 셀렉트 (LOCK)을 제어합니다
-     */
-    socket.on("handleSelectPick", ({ cloneCard, turnAdd, cloneActiveCard }) => {
-      if (turnAdd === 20) {
-        endDraft();
-      }
+      socket.emit("joinDraft", seq);
 
-      setActiveCard(cloneActiveCard);
-      setCard(cloneCard);
-      setTurn(turnAdd);
-      setSelectDisabled(true);
-    });
-  }, [seq]);
+      socket.emit("watchDraftState", {
+        seq,
+        myTeam,
+        watchId: draft.watchEnName,
+      });
+
+      /**
+       * 블루,레드팀 참여자 확인
+       */
+      socket.on("CheckForOngoingGame", ({ dbCard, dbActiveCard, dbTurn }) => {
+        setTurn(dbTurn);
+        setActiveCard(dbActiveCard);
+        setCard(dbCard);
+      });
+
+      /**
+       * 대전을 시작합니다
+       */
+      socket.on("startDraft", () => {
+        setStartGame(true);
+      });
+
+      /**
+       * 방이 꽉찼습니다
+       */
+      // socket.on("fullDraft", (watchId) => {
+      //   alert("방이 꽉찼습니다 \n 관전자 모드로 변경합니다");
+      // });
+
+      /**
+       * 챔피언 셀렉트 버튼을 제어합니다
+       */
+      socket.on("handleSelectBtn", () => {
+        setSelectDisabled(false);
+      });
+
+      /**
+       * 밴픽 소켓통신을 제어합니다
+       */
+      socket.on("handlePick", ({ cloneCard }) => {
+        setCard(cloneCard);
+      });
+
+      /**
+       *
+       */
+
+      /**
+       * 밴픽 챔피언 셀렉트 (LOCK)을 제어합니다
+       */
+      socket.on(
+        "handleSelectPick",
+        ({ cloneCard, turnAdd, cloneActiveCard }) => {
+          if (turnAdd === 20) {
+            endDraft();
+          }
+
+          setActiveCard(cloneActiveCard);
+          setCard(cloneCard);
+          setTurn(turnAdd);
+          setSelectDisabled(true);
+        }
+      );
+    },
+    [seq]
+  );
 
   const endDraft = () => {
     alert("게임이 종료되었습니다");
@@ -193,8 +256,8 @@ function Draft(props) {
     return true;
   };
 
-  /**
-   *
+  /**handlePick
+   * 현재 픽 하고 있는중...
    * @param {*} param0
    * @returns
    */
@@ -209,7 +272,37 @@ function Draft(props) {
       return;
     }
 
+    if (audioObj.effect) {
+      audioObj.effect.pause();
+    }
+
+    if (audioObj.sound) {
+      audioObj.sound.pause();
+    }
+
     const cloneCard = { ...card };
+    const newAudioObj = { ...audioObj };
+
+    const folderName = turn >= 9 ? "pick" : "pick";
+
+    const soundAudio = new Audio(
+      `${process.env.PUBLIC_URL}/sound/${folderName}/${engName}.ogg`
+    );
+
+    if (folderName === "pick") {
+      const effectAudio = new Audio(
+        `${process.env.PUBLIC_URL}/sound/${folderName}/${engName}_SFX.ogg`
+      );
+
+      newAudioObj.effect = effectAudio;
+
+      effectAudio.volume = 0.4;
+      effectAudio.play();
+    }
+
+    soundAudio.play();
+    newAudioObj.sound = soundAudio;
+    setAudioObj(newAudioObj);
 
     socketObj.emit("handlePick", {
       cloneCard,
@@ -223,7 +316,7 @@ function Draft(props) {
   };
 
   /**
-   *
+   * 현재 픽을 고정 [선택함]
    */
   const handleSelectPick = () => {
     const cloneCard = { ...card };
@@ -255,103 +348,29 @@ function Draft(props) {
   };
 
   if (loading) {
-    console.log("loading");
     return <div>Hello.</div>;
   }
 
   return (
     <>
       <MatchDisplay blueName={draft.blueName} redName={draft.redName} />
+      <audio ref={audioRef}></audio>
       <PickCard blue={card.blue.pick} red={card.red.pick} />
       <BanCard blue={card.blue.ban} red={card.red.ban} />
+      <ChampionList
+        champAll={champAll}
+        handlePick={handlePick}
+        handleSelectPick={handleSelectPick}
+        handleSearchLine={handleSearchLine}
+        handleSearchName={handleSearchName}
+        selectDisabled={selectDisabled}
+        activeCard={activeCard}
+        startGame={startGame}
+        searchName={searchName}
+        searchLine={searchLine}
+      />
     </>
   );
 }
-
-const MatchDisplay = React.memo(({ blueName, redName }) => {
-  return (
-    <div className="contents">
-      <div className="competion">
-        <div className="flex al-c js-c">
-          <div className="team-wrap">
-            <h1 className="f-23 ml-12">{blueName}</h1>
-            <div className="team-img"></div>
-          </div>
-          <div className="team-wrap">
-            <div className="team-img red-team"></div>
-            <h1 className="f-23 mr-12">{redName}</h1>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-const PickCard = React.memo(({ blue, red }) => {
-  console.log("bye");
-  return (
-    <div className="pick-card-wrap">
-      <div className="team-picks">
-        {blue &&
-          Object.values(blue).map(({ tmpKey, active }, key) => {
-            return (
-              <div className="pick" key={tmpKey}>
-                <div className="pick-image blue-team-card">
-                  <span className={active}></span>
-                </div>
-                <span className="pick-name"></span>
-              </div>
-            );
-          })}
-      </div>
-      <div className="team-picks">
-        {red &&
-          Object.values(red).map(({ tmpKey, active }, key) => {
-            return (
-              <div className="pick" key={tmpKey}>
-                <div className="pick-image red-team-card aa">
-                  <span className={active}></span>
-                </div>
-                <span className="pick-name"></span>
-              </div>
-            );
-          })}
-      </div>
-    </div>
-  );
-});
-
-const BanCard = React.memo(({ blue, red }) => {
-  return (
-    <div className="pick-card-wrap">
-      <div className="team-picks">
-        {blue &&
-          Object.values(blue).map((value, key) => {
-            return (
-              <div className="pick" key={value.tmpKey}>
-                <div className="ben-pick-image blue-team-card">
-                  <span className={value.active}></span>
-                </div>
-                <span className="pick-name"></span>
-              </div>
-            );
-          })}
-      </div>
-      <div className="team-picks">
-        {red &&
-          Object.values(red).map((value, key) => {
-            return (
-              <div className="pick" key={value.tmpKey}>
-                <div className="ben-pick-image red-team-card">
-                  <span className={value.active}></span>
-                </div>
-                <span className="pick-name"></span>
-              </div>
-            );
-          })}
-      </div>
-    </div>
-  );
-});
 
 export default Draft;

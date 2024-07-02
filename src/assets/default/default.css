@@ -236,18 +236,16 @@ main {
 }
 
 .champion-box {
-  background-color: black;
-  padding: 24px;
+  padding: 0px 24px 24px 24px;
   margin-bottom: 24px;
   border-radius: 3px;
-  min-width: 1024px;
-  width: 1024px;
-  min-height: 1024px;
+  min-width: 1398px;
+  width: 1398px;
 }
 
 .competion {
-  min-width: 1024px;
-  width: 1024px;
+  min-width: 1398px;
+  width: 1398px;
   background-color: black;
   margin-bottom: 30px;
   margin-top: 30px;
@@ -267,8 +265,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25px;
-  padding-left: 12px;
+  padding: 24px 36px;
   width: 100%;
 }
 
@@ -403,7 +400,7 @@ main {
 .pick-card-wrap {
   display: flex;
   margin: 0px auto;
-  width: 1380px;
+  width: 1398px;
 }
 
 .pick-card-wrap > div:first-child {

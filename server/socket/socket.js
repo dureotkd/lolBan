@@ -9,20 +9,6 @@ const io = require("socket.io")(http, {
 
 const rooms = {};
 const watch = {};
-// const intervalControl = {
-//   obj: null,
-//   start: (seq, second, team) => {
-//     if (this.obj !== undefined) {
-//       clearInterval(this.obj);
-//       io.to(seq).emit("stopSecond", second, team);
-//     }
-//     this.obj = setInterval(() => {
-//       second--;
-
-//       io.to(seq).emit("startSecond", second, team);
-//     }, 1000);
-//   },
-// };
 
 io.on("connection", (socket) => {
   console.log(`소켓 서버가 연결되었습니다 👨`);
@@ -39,11 +25,17 @@ io.on("connection", (socket) => {
       const dbActiveCard = JSON.parse(draftDetailRow.activeCard);
       const dbTurn = draftDetailRow.turn;
 
-      io.to(socketId).emit("joinDraft", { dbCard, dbActiveCard, dbTurn });
+      io.to(socketId).emit("CheckForOngoingGame", {
+        dbCard,
+        dbActiveCard,
+        dbTurn,
+      });
     }
   });
 
   socket.on("watchDraftState", ({ seq, myTeam, watchId }) => {
+    console.log(seq, myTeam, watchId);
+
     switch (myTeam) {
       case "blue":
         if (rooms[socketId] === undefined) {
