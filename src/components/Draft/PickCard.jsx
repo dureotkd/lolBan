@@ -1,15 +1,19 @@
 import React from "react";
+import OpacityImage from "./OpacityImage";
 
 const PickCard = React.memo(({ blue, red }) => {
   return (
     <div className="pick-card-wrap">
       <div className="team-picks">
         {blue &&
-          Object.values(blue).map(({ tmpKey, active }, key) => {
+          Object.values(blue).map(({ tmpKey, active, img }) => {
             return (
               <div className="pick" key={tmpKey}>
                 <div className="pick-image blue-team-card">
                   <span className={active}></span>
+                  {img ? (
+                    <OpacityImage duration={100} type="show" src={img} />
+                  ) : null}
                 </div>
                 <span className="pick-name"></span>
               </div>
@@ -18,11 +22,14 @@ const PickCard = React.memo(({ blue, red }) => {
       </div>
       <div className="team-picks">
         {red &&
-          Object.values(red).map(({ tmpKey, active }, key) => {
+          Object.values(red).map(({ tmpKey, active, img }) => {
             return (
               <div className="pick" key={tmpKey}>
                 <div className="pick-image red-team-card aa">
                   <span className={active}></span>
+                  {img ? (
+                    <OpacityImage duration={100} type="show" src={img} />
+                  ) : null}
                 </div>
                 <span className="pick-name"></span>
               </div>

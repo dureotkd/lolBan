@@ -1,11 +1,10 @@
 import axios from "axios";
 import io from "socket.io-client";
 import { baseServerUrl } from "../../helper/port";
-import { connect } from "react-redux";
 import "../../assets/draft/draft.css";
 
-import React, { useEffect, useCallback, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import React, { useCallback, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import {
   MatchDisplay,
@@ -13,12 +12,10 @@ import {
   BanCard,
   ChampionList,
 } from "../../components/Draft";
+import { wait } from "../../helper/default";
 
 function Draft(props) {
   const { seq, id } = useParams();
-  const { search } = useLocation();
-  // const seq = search.split("&")[0].split("=")[1];
-  // const id = search.split("&")[1].split("=")[1];
   const [loading, setLoading] = useState(true);
 
   const [draft, setDraft] = useState({});
@@ -44,7 +41,9 @@ function Draft(props) {
 
   const [socketObj, setSocketObj] = useState(null);
 
+  const [audioPermission, setAudioPermission] = React.useState(null);
   const [audioObj, setAudioObj] = useState({
+    bg: null,
     effect: null,
     sound: null,
   });
@@ -54,6 +53,8 @@ function Draft(props) {
   React.useEffect(() => {
     (async () => {
       try {
+        requestAudioPermission();
+
         defaultCardSetUp();
 
         const champData = await fetchChampData();
@@ -70,6 +71,31 @@ function Draft(props) {
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const requestAudioPermission = React.useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const context = new AudioContext();
+      setAudioPermission(context);
+    } catch (e) {
+      if (e.name === "NotFoundError" || e.name === "DevicesNotFoundError") {
+        console.log(
+          "오디오 입력 장치를 찾을 수 없습니다. 이어폰을 연결하거나 마이크가 있는지 확인해주세요."
+        );
+      } else if (
+        e.name === "NotAllowedError" ||
+        e.name === "PermissionDeniedError"
+      ) {
+        console.log(
+          "오디오 권한이 거부되었습니다. 브라우저 설정을 확인해주세요."
+        );
+      } else {
+        console.log(`오디오 권한 요청 실패: ${e.message}`);
+      }
+      console.error(`오디오 권한 요청 실패: ${e}`);
+    }
   }, []);
 
   const defaultCardSetUp = useCallback(() => {
@@ -184,7 +210,10 @@ function Draft(props) {
       /**
        * 대전을 시작합니다
        */
-      socket.on("startDraft", () => {
+      socket.on("startDraft", async () => {
+        // const bgAudio = new Audio(`${process.env.PUBLIC_URL}/sound/bg.mp3`);
+        // await bgAudio.play();
+
         setStartGame(true);
       });
 
@@ -283,7 +312,7 @@ function Draft(props) {
     const cloneCard = { ...card };
     const newAudioObj = { ...audioObj };
 
-    const folderName = turn >= 9 ? "pick" : "pick";
+    const folderName = turn >= 9 ? "pick" : "ban";
 
     const soundAudio = new Audio(
       `${process.env.PUBLIC_URL}/sound/${folderName}/${engName}.ogg`
@@ -296,7 +325,7 @@ function Draft(props) {
 
       newAudioObj.effect = effectAudio;
 
-      effectAudio.volume = 0.4;
+      effectAudio.volume = 0.8;
       effectAudio.play();
     }
 
