@@ -57,8 +57,6 @@ class Core {
         if (err) {
           console.log(JSON.stringify(err));
         } else {
-          console.log(sql);
-
           connection.query(sql, function (err, data, option) {
             switch (type) {
               case "all":

@@ -468,3 +468,13 @@ main {
 .mr-12 {
   margin-right: 12px;
 }
+
+input:disabled,
+button:disabled {
+  cursor: not-allowed;
+}
+
+.hidden-img {
+  cursor: not-allowed;
+  opacity: 0.4;
+}

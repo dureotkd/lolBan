@@ -128,6 +128,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  // const 순서결정 = [
+  //   1,2,2,
+  // ];
+
   socket.on(
     "handleSelectPick",
     async ({ cloneCard, cloneActiveCard, turn, seq }) => {
@@ -146,6 +150,11 @@ io.on("connection", (socket) => {
           }
         }
       }
+
+      // * 0 blue
+
+      // * 2 red
+      console.log(turn, turnTeam);
 
       const engName = cloneCard[turnTeam][turnAction][lastKey]["name"];
       cloneCard[turnTeam][turnAction][lastKey]["lock"] = true;

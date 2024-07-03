@@ -73,6 +73,11 @@ const ChampionList = React.memo(
                 // 라인검색
                 if (!empty(searchLine) && searchLine !== line) return true;
 
+                const ImgclasName =
+                  activeCard.includes(engName) || !startGame
+                    ? "hidden-img"
+                    : "";
+
                 return (
                   <div
                     className="champion"
@@ -80,14 +85,8 @@ const ChampionList = React.memo(
                     onClick={handlePick.bind(this, { cKey, engName })}
                   >
                     <img
-                      className="champion-icon"
+                      className={`champion-icon ${ImgclasName}`}
                       alt="롤 챔피언 아이콘"
-                      style={{
-                        opacity:
-                          activeCard.includes(engName) || !startGame
-                            ? "0.4"
-                            : null,
-                      }}
                       src={
                         `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`
                         // cKey < 1000

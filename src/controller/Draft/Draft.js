@@ -266,18 +266,15 @@ function Draft(props) {
     alert("게임이 종료되었습니다");
   };
 
-  /**
-   *
-   * @param {*} engName
-   * @returns
-   */
-  const checkNormalPick = (engName) => {
+  const checkPick = (engName) => {
+    // * 이미 선택한 챔피언은 false ✔️
     if (activeCard.includes(engName)) {
       return false;
     }
 
     const turnTeam = turn % 2 === 0 ? "blue" : "red";
 
+    // * 내 차례가 아닐 경우 false ✔️
     if (turnTeam !== draft.myTeam) {
       return false;
     }
@@ -285,17 +282,12 @@ function Draft(props) {
     return true;
   };
 
-  /**handlePick
-   * 현재 픽 하고 있는중...
-   * @param {*} param0
-   * @returns
-   */
   const handlePick = ({ cKey, engName }) => {
     if (!startGame) {
       return;
     }
 
-    const isNormal = checkNormalPick(engName);
+    const isNormal = checkPick(engName);
 
     if (!isNormal) {
       return;
