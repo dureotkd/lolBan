@@ -7,8 +7,12 @@ const io = require("socket.io")(http, {
   cors: { origin: "*" },
 });
 
+const { getNextTurnIndex, getTurnTeam } = require("../helper/card-helper");
+const { empty } = require("../../src/helper/default");
+
 const rooms = {};
 const watch = {};
+let intervalObj = {};
 
 io.on("connection", (socket) => {
   console.log(`소켓 서버가 연결되었습니다 👨`);
@@ -34,8 +38,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("watchDraftState", ({ seq, myTeam, watchId }) => {
-    console.log(seq, myTeam, watchId);
-
     switch (myTeam) {
       case "blue":
         if (rooms[socketId] === undefined) {
@@ -94,26 +96,50 @@ io.on("connection", (socket) => {
     io.to(seq).emit("watchNowCnt", watchNowCnt);
   });
 
-  socket.on("startSecond", async ({ seq, second }) => {
-    // intervalControl.start(seq, second["blue"], "blue");
-    // await wait(10000);
-    // intervalControl.start(seq, second["red"], "red");
-    // await wait(10000);
+  /**
+   * 1. 블루팀 시작
+   * 2. 레드팀 시작
+   *
+   * - 처음 게임 시작시 30초
+   * => 픽 안할 경우 랜덤 챔피언 SELECT
+   *
+   * - 픽 할 경우 30초 다시 초기화
+   *
+   */
+  socket.on("startSecond", async ({ seq, turn, second, card }) => {
+    // const turnTeam = getTurnTeam(turn);
+    // if (!empty(intervalObj)) {
+    //   clearInterval(intervalObj);
+    // }
+    // let s = 2;
+    // intervalObj = setInterval(() => {
+    //   const cloneSecond = { ...second };
+    //   cloneSecond[turnTeam] = s;
+    //   console.log(s);
+    //   if (s < 0) {
+    //     io.to(seq).emit("endSecond");
+    //     clearInterval(intervalObj);
+    //   } else {
+    //     io.to(seq).emit("startSecond", cloneSecond);
+    //   }
+    //   s--;
+    // }, 1000);
   });
 
-  socket.on("handlePick", ({ cloneCard, cKey, engName, turn, seq }) => {
-    const turnTeam = turn % 2 === 0 ? "blue" : "red";
+  socket.on("handlePick", ({ cloneCard, engName, turn, seq }) => {
+    const turnTeam = getTurnTeam(turn);
     const turnAction = turn < 10 ? "ban" : "pick";
     const turnCard = cloneCard[turnTeam][turnAction];
+
+    console.log(engName);
+
     for (const key in turnCard) {
       if (!turnCard[key].lock) {
         const numberKey = Number(key);
 
         cloneCard[turnTeam][turnAction][numberKey] = {
-          tmpKey: cKey,
           img: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${engName}_0.jpg`,
           lock: false,
-          code: cKey,
           name: engName,
         };
 
@@ -128,58 +154,57 @@ io.on("connection", (socket) => {
     });
   });
 
-  // const 순서결정 = [
-  //   1,2,2,
-  // ];
+  // 1 2 2
 
   socket.on(
     "handleSelectPick",
     async ({ cloneCard, cloneActiveCard, turn, seq }) => {
-      const turnTeam = turn % 2 === 0 ? "blue" : "red";
-      const turnAction = turn < 10 ? "ban" : "pick";
-      const turnReverseTeam = turnTeam === "blue" ? "red" : "blue";
+      const turnTeam = getTurnTeam(turn);
       const turnAdd = turn + 1;
-      const turnCard = cloneCard[turnTeam][turnAction];
-      let lastKey = Number.MIN_SAFE_INTEGER;
 
-      for (const key in turnCard) {
-        if (turnCard[key].img) {
-          const numberKey = Number(key);
-          if (numberKey > lastKey) {
-            lastKey = numberKey;
-          }
-        }
-      }
+      const turnAction = turn < 10 ? "ban" : "pick";
+
+      const turnCard = cloneCard[turnTeam][turnAction];
+
+      const lastKey = Object.keys(turnCard)
+        .filter((key) => turnCard[key].img)
+        .reduce(
+          (max, key) => Math.max(max, Number(key)),
+          Number.MIN_SAFE_INTEGER
+        );
 
       // * 0 blue
 
       // * 2 red
-      console.log(turn, turnTeam);
+      // console.log(turn, turnTeam);
+
+      // 현재 픽되었으니까 LOCK ========================
 
       const engName = cloneCard[turnTeam][turnAction][lastKey]["name"];
       cloneCard[turnTeam][turnAction][lastKey]["lock"] = true;
       cloneActiveCard.push(engName);
 
-      let nextActiveKey = turnAdd % 2 === 0 ? lastKey + 1 : lastKey;
+      // 현재 픽되었으니까 LOCK ========================
 
-      if (nextActiveKey > 4) {
-        nextActiveKey--;
-      }
+      // 다음 KEY 값을 찾아줌 ========================
+
+      const turnReverseTeam = getTurnTeam(turnAdd);
+      const nextTurnIndex = getNextTurnIndex(turnAdd);
+
+      // 다음 KEY 값을 찾아줌 ========================
 
       const isLastBan = turn === 9 ? true : false;
+      const isLastPick = turn === 19 ? true : false;
 
-      switch (isLastBan) {
-        case true:
-          cloneCard["blue"]["pick"][0].active = "active";
-
-          break;
-
-        default:
-          cloneCard[turnReverseTeam][turnAction][nextActiveKey].active =
-            "active";
-
-          break;
+      if (isLastBan) {
+        cloneCard["blue"]["pick"][0].active = "active";
+      } else if (!isLastPick) {
+        cloneCard[turnReverseTeam][turnAction][nextTurnIndex].active = "active";
       }
+
+      console.log(turn);
+
+      // console.log(JSON.stringify(cloneCard, null, 2));
 
       const draftDetailRow = await draftDetailModel.getRowByPk(seq);
       const regDate = moment().format("YYYY-MM-DD HH:mm:ss");

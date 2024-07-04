@@ -3,85 +3,11 @@ const crypto = require("crypto");
 const moment = require("moment");
 const gameModel = require("../model/Game/GameModel");
 const champModel = require("../model/Champ/ChampModel");
+const { getTurnTeam } = require("../helper/card-helper");
 
 const fs = require("fs");
 const path = require("path");
 const fsPromises = fs.promises;
-
-router.get("/confirm", async (req, res) => {
-  const champAll = await champModel.getAll();
-
-  const failChamp = [];
-
-  for await (let { engName } of champAll) {
-    try {
-      await fsPromises.access(
-        `C:\\workSpace\\lolBan\\public\\sound\\pick\\${engName}_SFX.ogg`
-      );
-      console.log("File exists.");
-    } catch (error) {
-      console.log("File does not exist.");
-
-      failChamp.push(engName);
-    }
-  }
-
-  console.log(failChamp);
-
-  res.send({});
-});
-
-router.get("/migration", async (req, res) => {
-  try {
-    const files = await fsPromises.readdir("C:\\game");
-
-    for (const file of files) {
-      const [champName, pickType = "", sfx = ""] = file
-        .replace(".ogg", "")
-        .split("_");
-
-      switch (pickType) {
-        case "Ban": {
-          const destinationFolder = "C:\\workSpace\\lolBan\\public\\sound\\ban";
-          const destinationPath = path.join(
-            destinationFolder,
-            `${champName}.ogg`
-          );
-
-          await fsPromises.rename(`C:\\game\\${file}`, destinationPath);
-          console.log(`${file} moved to ${destinationPath}`);
-          break;
-        }
-
-        case "Select": {
-          const destinationFolder =
-            "C:\\workSpace\\lolBan\\public\\sound\\pick";
-          let destinationPath;
-
-          if (sfx.includes("SFX")) {
-            destinationPath = path.join(
-              destinationFolder,
-              `${champName}_SFX.ogg`
-            );
-            await fsPromises.rename(`C:\\game\\${file}`, destinationPath);
-          } else {
-            destinationPath = path.join(destinationFolder, `${champName}.ogg`);
-            await fsPromises.rename(`C:\\game\\${file}`, destinationPath);
-          }
-
-          console.log(`${file} moved to ${destinationPath}`);
-          break;
-        }
-
-        default:
-          break;
-      }
-    }
-  } catch (err) {
-    console.error("Error while moving files:", err);
-  }
-  res.send("Hello RESTFUL API ");
-});
 
 router.get("/games", async (req, res) => {
   const { seq, id } = req.query;
@@ -118,6 +44,14 @@ router.get("/champs", async (req, res) => {
   res.send({
     all,
   });
+});
+
+router.get("/game/turn", async (req, res) => {
+  const { turn } = req.query;
+
+  const turnTeam = getTurnTeam(turn);
+
+  res.send(turnTeam);
 });
 
 router.patch("/games", async (req, res) => {
