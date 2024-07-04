@@ -327,7 +327,7 @@ main {
 .pick-image {
   width: 100%;
   padding-top: 181%;
-  background: #212121;
+  background: #141414;
   position: relative;
   margin-top: 2px;
   margin-bottom: -4px;
@@ -366,7 +366,7 @@ main {
 .ben-pick-image {
   width: 100%;
   padding-top: 181%;
-  background: #212121;
+  background: #141414;
   position: relative;
   margin-top: 2px;
   margin-bottom: -4px;
@@ -421,7 +421,7 @@ main {
   position: absolute;
   top: 0;
   left: 0;
-  transition: opacity 0.35s ease-out;
+  /* transition: opacity 0.35s ease-out; */
 }
 
 .select-btn {
@@ -477,4 +477,15 @@ button:disabled {
 .hidden-img {
   cursor: not-allowed;
   opacity: 0.4;
+}
+
+.second-red-box {
+  position: absolute;
+  left: 29px;
+  top: 0px;
+}
+.second-blue-box {
+  position: absolute;
+  right: 29px;
+  top: 0px;
 }

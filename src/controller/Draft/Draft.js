@@ -12,7 +12,7 @@ import {
   BanCard,
   ChampionList,
 } from "../../components/Draft";
-import { wait } from "../../helper/default";
+import { getRandomNumber, wait } from "../../helper/default";
 
 function Draft(props) {
   const { seq, id } = useParams();
@@ -24,6 +24,12 @@ function Draft(props) {
   const [turn, setTurn] = useState(0);
 
   const [activeCard, setActiveCard] = useState([]);
+
+  let [second, setSecond] = useState({
+    blue: "",
+    red: "",
+  });
+
   const [card, setCard] = useState({
     blue: {
       pick: {},
@@ -41,14 +47,14 @@ function Draft(props) {
 
   const [socketObj, setSocketObj] = useState(null);
 
+  const [random, setRandom] = React.useState(false);
+
   const [audioPermission, setAudioPermission] = React.useState(null);
   const [audioObj, setAudioObj] = useState({
     bg: null,
     effect: null,
     sound: null,
   });
-
-  const audioRef = React.useRef("");
 
   React.useEffect(() => {
     (async () => {
@@ -103,32 +109,30 @@ function Draft(props) {
       const clonePrev = { ...prev };
 
       for (let i = 0; i < 5; i++) {
-        clonePrev.blue.pick[i] = {
-          tmpKey: `blue-pick-${i}`,
-          code: null,
-          name: null,
-          img: null,
-          active: null,
-        };
         clonePrev.blue.ban[i] = {
-          tmpKey: `blue-ban-${i}`,
-          code: null,
-          name: null,
           img: null,
+          lock: false,
+          name: null,
           active: i === 0 ? "active" : null,
         };
-        clonePrev.red.pick[i] = {
-          tmpKey: `red-pick-${i}`,
-          code: null,
-          name: null,
+        clonePrev.blue.pick[i] = {
           img: null,
+          lock: false,
+          name: null,
           active: null,
         };
+
         clonePrev.red.ban[i] = {
-          tmpKey: `red-ban-${i}`,
-          code: null,
-          name: null,
           img: null,
+          lock: false,
+          name: null,
+          active: null,
+        };
+
+        clonePrev.red.pick[i] = {
+          img: null,
+          lock: false,
+          name: null,
           active: null,
         };
       }
@@ -215,7 +219,18 @@ function Draft(props) {
         // await bgAudio.play();
 
         setStartGame(true);
+
+        const cloneCard = { ...card };
+        socket.emit("startSecond", { seq, turn, second, cloneCard });
       });
+
+      socket.on("startSecond", (cloneSecond) => {
+        // setSecond(second--);
+
+        setSecond(cloneSecond);
+      });
+
+      socket.on("endSecond", async () => {});
 
       /**
        * 방이 꽉찼습니다
@@ -239,10 +254,6 @@ function Draft(props) {
       });
 
       /**
-       *
-       */
-
-      /**
        * 밴픽 챔피언 셀렉트 (LOCK)을 제어합니다
        */
       socket.on(
@@ -259,6 +270,8 @@ function Draft(props) {
         }
       );
     },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [seq]
   );
 
@@ -266,30 +279,32 @@ function Draft(props) {
     alert("게임이 종료되었습니다");
   };
 
-  const checkPick = (engName) => {
+  const checkPick = async (engName) => {
     // * 이미 선택한 챔피언은 false ✔️
     if (activeCard.includes(engName)) {
       return false;
     }
 
-    const turnTeam = turn % 2 === 0 ? "blue" : "red";
+    const { data } = await axios({
+      url: `${baseServerUrl}/api/game/turn`,
+      params: {
+        turn: turn,
+      },
+    });
 
-    // * 내 차례가 아닐 경우 false ✔️
-    if (turnTeam !== draft.myTeam) {
+    if (data !== draft.myTeam) {
       return false;
     }
 
     return true;
   };
 
-  const handlePick = ({ cKey, engName }) => {
+  const handlePick = async ({ engName }) => {
     if (!startGame) {
       return;
     }
 
-    const isNormal = checkPick(engName);
-
-    if (!isNormal) {
+    if (!(await checkPick(engName))) {
       return;
     }
 
@@ -327,10 +342,7 @@ function Draft(props) {
 
     socketObj.emit("handlePick", {
       cloneCard,
-      cKey,
       engName,
-      activeCard,
-      isNormal,
       turn,
       seq,
     });
@@ -374,8 +386,12 @@ function Draft(props) {
 
   return (
     <>
-      <MatchDisplay blueName={draft.blueName} redName={draft.redName} />
-      <audio ref={audioRef}></audio>
+      <MatchDisplay
+        blueName={draft.blueName}
+        redName={draft.redName}
+        blueSecond={second.blue}
+        redSecond={second.red}
+      />
       <PickCard blue={card.blue.pick} red={card.red.pick} />
       <BanCard blue={card.blue.ban} red={card.red.ban} />
       <ChampionList

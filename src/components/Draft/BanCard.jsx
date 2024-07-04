@@ -7,14 +7,12 @@ const BanCard = React.memo(({ blue, red }) => {
     <div className="pick-card-wrap">
       <div className="team-picks">
         {blue &&
-          Object.values(blue).map(({ tmpKey, active, img }) => {
+          Object.values(blue).map(({ tmpKey, active, img }, key) => {
             return (
-              <div className="pick" key={tmpKey}>
+              <div className="pick" key={`blue-ban-${key}`}>
                 <div className="ben-pick-image blue-team-card">
                   <span className={active}></span>
-                  {img ? (
-                    <OpacityImage duration={100} type="show" src={img} />
-                  ) : null}
+                  {img ? <OpacityImage duration={100} src={img} /> : null}
                 </div>
                 <span className="pick-name"></span>
               </div>
@@ -23,14 +21,12 @@ const BanCard = React.memo(({ blue, red }) => {
       </div>
       <div className="team-picks">
         {red &&
-          Object.values(red).map(({ tmpKey, active, img }) => {
+          Object.values(red).map(({ tmpKey, active, img }, key) => {
             return (
-              <div className="pick" key={tmpKey}>
+              <div className="pick" key={`red-ban-${key}`}>
                 <div className="ben-pick-image red-team-card">
                   <span className={active}></span>
-                  {img ? (
-                    <OpacityImage duration={100} type="show" src={img} />
-                  ) : null}
+                  {img ? <OpacityImage duration={100} src={img} /> : null}
                 </div>
                 <span className="pick-name"></span>
               </div>

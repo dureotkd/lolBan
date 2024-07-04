@@ -9,6 +9,7 @@ const io = require("socket.io")(http, {
 
 const { getNextTurnIndex, getTurnTeam } = require("../helper/card-helper");
 const { empty } = require("../../src/helper/default");
+const champModel = require("../model/Champ/ChampModel");
 
 const rooms = {};
 const watch = {};
@@ -106,32 +107,60 @@ io.on("connection", (socket) => {
    * - 픽 할 경우 30초 다시 초기화
    *
    */
-  socket.on("startSecond", async ({ seq, turn, second, card }) => {
-    // const turnTeam = getTurnTeam(turn);
-    // if (!empty(intervalObj)) {
-    //   clearInterval(intervalObj);
-    // }
-    // let s = 2;
-    // intervalObj = setInterval(() => {
-    //   const cloneSecond = { ...second };
-    //   cloneSecond[turnTeam] = s;
-    //   console.log(s);
-    //   if (s < 0) {
-    //     io.to(seq).emit("endSecond");
-    //     clearInterval(intervalObj);
-    //   } else {
-    //     io.to(seq).emit("startSecond", cloneSecond);
-    //   }
-    //   s--;
-    // }, 1000);
-  });
+  // socket.on("startSecond", async ({ seq, turn, second, cloneCard }) => {
+  //   const turnTeam = getTurnTeam(turn);
+  //   if (!empty(intervalObj)) {
+  //     clearInterval(intervalObj);
+  //   }
+  //   let s = 2;
+
+  //   intervalObj = setInterval(async () => {
+  //     const cloneSecond = { ...second };
+  //     cloneSecond[turnTeam] = s;
+  //     console.log(s);
+  //     if (s < 0) {
+  //       console.log(turn);
+
+  //       const turnTeam = getTurnTeam(turn);
+  //       const turnAction = turn < 10 ? "ban" : "pick";
+  //       const turnCard = cloneCard[turnTeam][turnAction];
+
+  //       const champAll = await champModel.getAll();
+
+  //       console.log(champAll)
+
+  //       for (const key in turnCard) {
+  //         if (!turnCard[key].lock) {
+  //           const numberKey = Number(key);
+
+  //           cloneCard[turnTeam][turnAction][numberKey] = {
+  //             img: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${engName}_0.jpg`,
+  //             lock: false,
+  //             name: engName,
+  //           };
+
+  //           break;
+  //         }
+  //       }
+
+  //       // io.to(socketId).emit("handleSelectBtn");
+
+  //       // io.to(seq).emit("handlePick", {
+  //       //   cloneCard,
+  //       // });
+
+  //       clearInterval(intervalObj);
+  //     } else {
+  //       io.to(seq).emit("startSecond", cloneSecond);
+  //     }
+  //     s--;
+  //   }, 1000);
+  // });
 
   socket.on("handlePick", ({ cloneCard, engName, turn, seq }) => {
     const turnTeam = getTurnTeam(turn);
     const turnAction = turn < 10 ? "ban" : "pick";
     const turnCard = cloneCard[turnTeam][turnAction];
-
-    console.log(engName);
 
     for (const key in turnCard) {
       if (!turnCard[key].lock) {

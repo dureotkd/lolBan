@@ -46,12 +46,12 @@ const ChampionList = React.memo(
               disabled={selectDisabled ? true : false}
               onClick={handleSelectPick.bind(this)}
             >
-              선택
+              SELECT
             </button>
             <input
               type="text"
               style={{ marginLeft: 10 }}
-              placeholder="챔피언 검색"
+              placeholder="search"
               onChange={debounce(handleSearchName, 200)}
             />
           </div>
@@ -69,7 +69,7 @@ const ChampionList = React.memo(
                   return val;
                 }
               })
-              .map(({ cKey, line, seq, engName, korName }) => {
+              .map(({ line, engName, korName }, key) => {
                 // 라인검색
                 if (!empty(searchLine) && searchLine !== line) return true;
 
@@ -81,8 +81,8 @@ const ChampionList = React.memo(
                 return (
                   <div
                     className="champion"
-                    key={cKey}
-                    onClick={handlePick.bind(this, { cKey, engName })}
+                    key={`${engName}-${key}`}
+                    onClick={handlePick.bind(this, { engName })}
                   >
                     <img
                       className={`champion-icon ${ImgclasName}`}

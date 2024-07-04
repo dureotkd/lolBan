@@ -6,9 +6,9 @@ const PickCard = React.memo(({ blue, red }) => {
     <div className="pick-card-wrap">
       <div className="team-picks">
         {blue &&
-          Object.values(blue).map(({ tmpKey, active, img }) => {
+          Object.values(blue).map(({ active, img }, key) => {
             return (
-              <div className="pick" key={tmpKey}>
+              <div className="pick" key={`blue-pick-${key}`}>
                 <div className="pick-image blue-team-card">
                   <span className={active}></span>
                   {img ? (
@@ -22,9 +22,9 @@ const PickCard = React.memo(({ blue, red }) => {
       </div>
       <div className="team-picks">
         {red &&
-          Object.values(red).map(({ tmpKey, active, img }) => {
+          Object.values(red).map(({ tmpKey, active, img }, key) => {
             return (
-              <div className="pick" key={tmpKey}>
+              <div className="pick" key={`red-pick-${key}`}>
                 <div className="pick-image red-team-card aa">
                   <span className={active}></span>
                   {img ? (

@@ -4,11 +4,23 @@ import { useRef } from "react";
 const OpacityImage = React.memo(({ duration, src }) => {
   const ref = useRef();
 
-  setTimeout(() => {
+  React.useEffect(() => {
     if (ref.current) {
-      ref.current.style.opacity = 1;
+      ref.current.style.transition = "";
+      ref.current.style.opacity = 0;
     }
-  }, [duration]);
+
+    const timer = setTimeout(() => {
+      if (ref.current) {
+        ref.current.style.transition = "opacity 0.2s ease-in-out";
+        ref.current.style.opacity = 1;
+      }
+    }, duration);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [duration, src]);
 
   return (
     <img
@@ -17,7 +29,6 @@ const OpacityImage = React.memo(({ duration, src }) => {
       src={src}
       style={{
         opacity: 0,
-        transition: "opacity 0.2s ease-in-out",
         top: 0,
         left: 0,
       }}

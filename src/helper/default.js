@@ -31,6 +31,10 @@ const isActive = ({ turn, key, action, team }) => {
   return active;
 };
 
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 const getImageConvertParam = (src) => {
   return `https://img1.daumcdn.net/thumb/C120x120.fjpg/?fname=${src}`;
 };
@@ -537,4 +541,11 @@ const champKorName = ($id) => {
   return $a;
 };
 
-export { empty, wait, champKorName, getImageConvertParam, isActive };
+module.exports = {
+  empty,
+  wait,
+  champKorName,
+  getImageConvertParam,
+  isActive,
+  getRandomNumber,
+};
