@@ -1,4 +1,3 @@
-const ip = require("ip");
 const moment = require("moment");
 const { http } = require("../http/http");
 const draftDetailModel = require("../model/DraftDetail/DraftDetailModel");
@@ -245,7 +244,7 @@ io.on("connection", (socket) => {
         activeCard: JSON.stringify(cloneActiveCard),
         turn: turnAdd,
         regDate: regDate,
-        regIp: ip.address(),
+        regIp: "",
       };
 
       switch (procType) {
