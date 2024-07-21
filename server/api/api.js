@@ -57,8 +57,8 @@ router.get("/game/turn", async (req, res) => {
 router.patch("/games", async (req, res) => {
   const { blueName, redName, matchName } = req.query;
 
-  const blueEnKey = `${blueName}_${matchName}`;
-  const redEnKey = `${redName}_${matchName}`;
+  const blueEnKey = `${blueName}_blue_${matchName}`;
+  const redEnKey = `${redName}_red_${matchName}`;
   const watchEnKey = `watch_${matchName}`;
   const lastRow = await gameModel.getLastPk();
 
