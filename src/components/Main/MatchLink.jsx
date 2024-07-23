@@ -11,13 +11,29 @@ const MatchLink = React.memo(
 
     const handleCopy = (type) => {
       const el = teamInputRef.current[type];
-      el.select();
-      document.execCommand("copy");
-      toast.success("복사가 완료되었습니다", {
-        position: toast.POSITION.TOP_CENTER,
-        autoClose: 500,
-        hideProgressBar: true,
-      });
+      const range = document.createRange();
+      const selection = window.getSelection();
+
+      range.selectNodeContents(el);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      try {
+        document.execCommand("copy");
+        toast.success("복사가 완료되었습니다", {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 500,
+          hideProgressBar: true,
+        });
+      } catch (err) {
+        toast.error("복사에 실패했습니다", {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 500,
+          hideProgressBar: true,
+        });
+      }
+
+      selection.removeAllRanges(); // Clear the selection
     };
 
     return (
@@ -27,35 +43,41 @@ const MatchLink = React.memo(
           <label htmlFor="blue_team_name">Blue Team Link</label>
           <FcOpenedFolder className="copy_icon" />
         </div>
-        <input
-          type="text"
+        <a
           id="blue_team_name"
-          readOnly
           ref={(elem) => (teamInputRef.current["blue"] = elem)}
-          value={`${baseUrl}/draft/${seq}/${blueEnName}`}
-        />
+          href={`${baseUrl}/draft/${seq}/${blueEnName}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`${baseUrl}/draft/${seq}/${blueEnName}`}
+        </a>
         <div className="link_box" onClick={handleCopy.bind(this, "red")}>
           <label htmlFor="red_team_name">Red Team Link</label>
           <FcOpenedFolder className="copy_icon" />
         </div>
-        <input
-          type="text"
+        <a
           id="red_team_name"
-          readOnly
           ref={(elem) => (teamInputRef.current["red"] = elem)}
-          value={`${baseUrl}/draft/${seq}/${redEnName}`}
-        />
+          href={`${baseUrl}/draft/${seq}/${redEnName}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`${baseUrl}/draft/${seq}/${redEnName}`}
+        </a>
         <div className="link_box" onClick={handleCopy.bind(this, "watch")}>
           <label htmlFor="red_team_name">Watch Team Link</label>
           <FcOpenedFolder className="copy_icon" />
         </div>
-        <input
-          type="text"
+        <a
           id="watch_team_name"
-          readOnly
           ref={(elem) => (teamInputRef.current["watch"] = elem)}
-          value={`${baseUrl}/draft/${seq}/${watchEnName}`}
-        />
+          href={`${baseUrl}/draft/${seq}/${watchEnName}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`${baseUrl}/draft/${seq}/${watchEnName}`}
+        </a>
       </div>
     );
   }
