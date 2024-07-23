@@ -14,6 +14,12 @@ import {
 } from "../../components/Draft";
 import { getRandomNumber, wait } from "../../helper/default";
 
+const teamNameKor = {
+  blue: "블루팀",
+  red: "레드팀",
+  watch: "옵저버팀",
+};
+
 function Draft(props) {
   const { seq, id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -47,9 +53,6 @@ function Draft(props) {
 
   const [socketObj, setSocketObj] = useState(null);
 
-  const [random, setRandom] = React.useState(false);
-
-  const [audioPermission, setAudioPermission] = React.useState(null);
   const [audioObj, setAudioObj] = useState({
     bg: null,
     effect: null,
@@ -59,8 +62,6 @@ function Draft(props) {
   React.useEffect(() => {
     (async () => {
       try {
-        requestAudioPermission();
-
         defaultCardSetUp();
 
         const champData = await fetchChampData();
@@ -77,31 +78,6 @@ function Draft(props) {
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const requestAudioPermission = React.useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      setAudioPermission(context);
-    } catch (e) {
-      if (e.name === "NotFoundError" || e.name === "DevicesNotFoundError") {
-        console.log(
-          "오디오 입력 장치를 찾을 수 없습니다. 이어폰을 연결하거나 마이크가 있는지 확인해주세요."
-        );
-      } else if (
-        e.name === "NotAllowedError" ||
-        e.name === "PermissionDeniedError"
-      ) {
-        console.log(
-          "오디오 권한이 거부되었습니다. 브라우저 설정을 확인해주세요."
-        );
-      } else {
-        console.log(`오디오 권한 요청 실패: ${e.message}`);
-      }
-      console.error(`오디오 권한 요청 실패: ${e}`);
-    }
   }, []);
 
   const defaultCardSetUp = useCallback(() => {
@@ -280,9 +256,14 @@ function Draft(props) {
   };
 
   const checkPick = async (engName) => {
+    const results = {
+      msg: "",
+      code: true,
+    };
+
     // * 이미 선택한 챔피언은 false ✔️
     if (activeCard.includes(engName)) {
-      return false;
+      results.code = false;
     }
 
     const { data } = await axios({
@@ -293,18 +274,23 @@ function Draft(props) {
     });
 
     if (data !== draft.myTeam) {
-      return false;
+      results.code = false;
+      results.msg = `${teamNameKor[data]} 순서입니다`;
     }
 
-    return true;
+    return results;
   };
 
   const handlePick = async ({ engName }) => {
     if (!startGame) {
+      alert("블루 & 레드팀 접속시 게임이 시작됩니다");
       return;
     }
 
-    if (!(await checkPick(engName))) {
+    const { code, msg } = await checkPick(engName);
+
+    if (!code) {
+      msg && alert(msg);
       return;
     }
 
