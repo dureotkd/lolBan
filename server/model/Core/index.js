@@ -65,7 +65,7 @@ class Core {
                 break;
               case "row":
                 if (data) resolve(data[0]);
-                else reject(new Error("empty"));
+                else resolve(null);
 
                 break;
 
