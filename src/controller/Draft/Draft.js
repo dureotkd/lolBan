@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { baseServerUrl } from "../../helper/port";
 import "../../assets/draft/draft.css";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import {
@@ -22,14 +22,14 @@ const teamNameKor = {
 
 function Draft(props) {
   const { seq, id } = useParams();
-  const [loading, setLoading] = useState(true);
 
+  const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState({});
   const [champAll, setChampAll] = useState([]);
   const [startGame, setStartGame] = useState(false);
   const [turn, setTurn] = useState(0);
-
   const [activeCard, setActiveCard] = useState([]);
+  const [activeTeamColor, setActiveTeamColor] = useState("blue");
 
   let [second, setSecond] = useState({
     blue: "",
@@ -52,7 +52,6 @@ function Draft(props) {
   const [selectDisabled, setSelectDisabled] = useState(true);
 
   const [socketObj, setSocketObj] = useState(null);
-
   const [audioObj, setAudioObj] = useState({
     bg: null,
     effect: null,
@@ -181,19 +180,27 @@ function Draft(props) {
       /**
        * 블루,레드팀 참여자 확인
        */
-      socket.on("CheckForOngoingGame", ({ dbCard, dbActiveCard, dbTurn }) => {
-        setTurn(dbTurn);
-        setActiveCard(dbActiveCard);
-        setCard(dbCard);
-      });
+      socket.on(
+        "CheckForOngoingGame",
+        async ({ dbCard, dbActiveCard, dbTurn }) => {
+          const { data } = await axios({
+            url: `${baseServerUrl}/api/game/turn`,
+            params: {
+              turn: dbTurn,
+            },
+          });
+
+          setTurn(dbTurn);
+          setActiveCard(dbActiveCard);
+          setCard(dbCard);
+          setActiveTeamColor(data);
+        }
+      );
 
       /**
        * 대전을 시작합니다
        */
-      socket.on("startDraft", async () => {
-        // const bgAudio = new Audio(`${process.env.PUBLIC_URL}/sound/bg.mp3`);
-        // await bgAudio.play();
-
+      socket.on("startDraft", () => {
         setStartGame(true);
 
         const cloneCard = { ...card };
@@ -206,7 +213,7 @@ function Draft(props) {
         setSecond(cloneSecond);
       });
 
-      socket.on("endSecond", async () => {});
+      socket.on("endSecond", () => {});
 
       /**
        * 방이 꽉찼습니다
@@ -234,14 +241,22 @@ function Draft(props) {
        */
       socket.on(
         "handleSelectPick",
-        ({ cloneCard, turnAdd, cloneActiveCard }) => {
+        async ({ cloneCard, turnAdd, cloneActiveCard }) => {
           if (turnAdd === 20) {
             endDraft();
           }
 
-          setActiveCard(cloneActiveCard);
-          setCard(cloneCard);
+          const { data } = await axios({
+            url: `${baseServerUrl}/api/game/turn`,
+            params: {
+              turn: turnAdd,
+            },
+          });
+
           setTurn(turnAdd);
+          setActiveTeamColor(data);
+          setCard(cloneCard);
+          setActiveCard(cloneActiveCard);
           setSelectDisabled(true);
         }
       );
@@ -259,6 +274,7 @@ function Draft(props) {
     const results = {
       msg: "",
       code: true,
+      activeTeamColor: "",
     };
 
     // * 이미 선택한 챔피언은 false ✔️
@@ -367,7 +383,7 @@ function Draft(props) {
   };
 
   if (loading) {
-    return <div>Hello.</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -382,15 +398,16 @@ function Draft(props) {
       <BanCard blue={card.blue.ban} red={card.red.ban} />
       <ChampionList
         champAll={champAll}
-        handlePick={handlePick}
-        handleSelectPick={handleSelectPick}
-        handleSearchLine={handleSearchLine}
-        handleSearchName={handleSearchName}
         selectDisabled={selectDisabled}
         activeCard={activeCard}
         startGame={startGame}
         searchName={searchName}
         searchLine={searchLine}
+        activeTeamColor={activeTeamColor}
+        handlePick={handlePick}
+        handleSelectPick={handleSelectPick}
+        handleSearchLine={handleSearchLine}
+        handleSearchName={handleSearchName}
       />
     </>
   );

@@ -16,6 +16,7 @@ const ChampionList = React.memo(
     handleSearchName,
     searchName,
     searchLine,
+    activeTeamColor,
   }) => {
     return (
       <div className="contents">
@@ -73,10 +74,15 @@ const ChampionList = React.memo(
                 // 라인검색
                 if (!empty(searchLine) && searchLine !== line) return true;
 
-                const ImgclasName =
+                const imgClassName =
                   activeCard.includes(engName) || !startGame
                     ? "hidden-img"
                     : "";
+
+                const activeTeamColorClassName =
+                  imgClassName === "hidden-img"
+                    ? ""
+                    : `champion-wrap active-team-${activeTeamColor}`;
 
                 return (
                   <div
@@ -84,16 +90,18 @@ const ChampionList = React.memo(
                     key={`${engName}-${key}`}
                     onClick={handlePick.bind(this, { engName })}
                   >
-                    <img
-                      className={`champion-icon ${ImgclasName}`}
-                      alt="롤 챔피언 아이콘"
-                      src={
-                        `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`
-                        // cKey < 1000
-                        //   ? `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`
-                        //   : process.env.PUBLIC_URL + `/champ/${engName}.png`
-                      }
-                    />
+                    <div className={activeTeamColorClassName}>
+                      <img
+                        className={`champion-icon ${imgClassName}`}
+                        alt="롤 챔피언 아이콘"
+                        src={
+                          `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`
+                          // cKey < 1000
+                          //   ? `https://opgg-static.akamaized.net/meta/images/lol/14.13.1/champion/${engName}.png`
+                          //   : process.env.PUBLIC_URL + `/champ/${engName}.png`
+                        }
+                      />
+                    </div>
                     <div style={{ marginBottom: 20, marginTop: 3 }}>
                       <p
                         style={{

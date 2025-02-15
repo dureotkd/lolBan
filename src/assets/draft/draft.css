@@ -41,3 +41,39 @@ body {
 .blue-team-card > .active {
   background: #0a4264;
 }
+
+.champion {
+  position: relative;
+  display: inline-block;
+}
+
+.champion-wrap {
+  transition: background 0.2s ease-in-out;
+}
+
+.champion-wrap::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  border-radius: 8px;
+  z-index: -1;
+}
+
+.active-team-red::before {
+  background: radial-gradient(
+    circle,
+    rgb(199 84 84 / 50%) 20%,
+    rgba(0, 0, 255, 0) 70%
+  );
+}
+
+.active-team-blue::before {
+  background: radial-gradient(
+    circle,
+    rgba(0, 102, 255, 0.4) 0%,
+    rgba(0, 0, 255, 0) 70%
+  );
+}
