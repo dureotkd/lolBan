@@ -1,11 +1,11 @@
 const baseServerUrl =
   window.location.host.indexOf("localhost") !== -1
     ? "http://localhost:8080"
-    : "http://211.238.133.10:8080";
+    : "https://api-w1.okpann.com";
 
 const baseUrl =
   window.location.host.indexOf("localhost") !== -1
     ? "http://localhost:3000"
-    : "http://211.238.133.10";
+    : "https://lol-ban.vercel.app";
 
 export { baseServerUrl, baseUrl };
