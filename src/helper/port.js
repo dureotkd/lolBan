@@ -6,6 +6,6 @@ const baseServerUrl =
 const baseUrl =
   window.location.host.indexOf("localhost") !== -1
     ? "http://localhost:3000"
-    : "https://lol-ban.vercel.app";
+    : "https://lolban.vercel.app";
 
 export { baseServerUrl, baseUrl };
