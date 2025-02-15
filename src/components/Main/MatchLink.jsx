@@ -50,7 +50,7 @@ const MatchLink = React.memo(
           target="_blank"
           rel="noreferrer"
         >
-          {`${baseUrl}/draft/${seq}/${blueEnName}`}
+          {`${encodeURIComponent(baseUrl)}/draft/${seq}/${blueEnName}`}
         </a>
         <div className="link_box" onClick={handleCopy.bind(this, "red")}>
           <label htmlFor="red_team_name">Red Team Link</label>
@@ -63,7 +63,7 @@ const MatchLink = React.memo(
           target="_blank"
           rel="noreferrer"
         >
-          {`${baseUrl}/draft/${seq}/${redEnName}`}
+          {`${encodeURIComponent(baseUrl)}/draft/${seq}/${redEnName}`}
         </a>
         <div className="link_box" onClick={handleCopy.bind(this, "watch")}>
           <label htmlFor="red_team_name">Watch Team Link</label>
@@ -76,7 +76,7 @@ const MatchLink = React.memo(
           target="_blank"
           rel="noreferrer"
         >
-          {`${baseUrl}/draft/${seq}/${watchEnName}`}
+          {`${encodeURIComponent(baseUrl)}/draft/${seq}/${watchEnName}`}
         </a>
       </div>
     );
